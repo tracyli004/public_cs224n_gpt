@@ -57,7 +57,7 @@ class ParaphraseGPT(nn.Module):
     for param in self.gpt.parameters():
       param.requires_grad = True
 
-  def forward(self, input_ids, attention_mask):
+  def forward(self, input_ids, attention_mask, labels=None):
     """
     TODO: Predict the label of the token using the paraphrase_detection_head Linear layer.
 
@@ -147,9 +147,10 @@ def train(args):
 
       # Compute the loss, gradients, and update the model's parameters.
       optimizer.zero_grad()
-      logits = model(b_ids, b_mask)
+      # logits = model(b_ids, b_mask)
+      logits, labels = model(b_ids, b_mask, labels)  # Pass labels
       preds = torch.argmax(logits, dim=1)
-      print(f"Unique label values in batch: {labels.unique()}")  # Debugging line
+      print(f"Unique label values in batch: {labels.unique()}")
       loss = F.cross_entropy(logits, labels, reduction='mean')
       print(f"logits shape: {logits.shape}, labels shape: {labels.shape}")
       print(f"logits: {logits[:5]}")
