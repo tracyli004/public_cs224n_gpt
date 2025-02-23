@@ -199,11 +199,15 @@ def test(args):
   print(f"dev paraphrase acc :: {dev_para_acc :.3f}")
   test_para_y_pred, test_para_sent_ids = model_test_paraphrase(para_test_dataloader, model, device)
 
+  label_mapping = {0: 3919, 1: 8905}
+  dev_para_y_pred_mapped = [label_mapping.get(pred, pred) for pred in dev_para_y_pred]
+  test_para_y_pred_mapped = [label_mapping.get(pred, pred) for pred in test_para_y_pred]
+  
   with open(args.para_dev_out, "w+") as f:
     f.write(f"id \t Predicted_Is_Paraphrase \n")
     for p, s in zip(dev_para_sent_ids, dev_para_y_pred):
       f.write(f"{p}, {s} \n")
-
+ 
   with open(args.para_test_out, "w+") as f:
     f.write(f"id \t Predicted_Is_Paraphrase \n")
     for p, s in zip(test_para_sent_ids, test_para_y_pred):
