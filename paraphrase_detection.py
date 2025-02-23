@@ -76,7 +76,7 @@ class ParaphraseGPT(nn.Module):
     print("GPT-2 Output Keys:", outputs.keys())
     hidden_states = outputs['last_hidden_state']
     last_token_embeds = hidden_states[:, -1, :]
-    logits = self.classifier(last_token_embeds)
+    logits = self.paraphrase_detection_head(last_token_embeds)
 
     return logits
 
