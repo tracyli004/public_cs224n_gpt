@@ -135,6 +135,7 @@ def train(args):
       optimizer.zero_grad()
       logits = model(b_ids, b_mask)
       preds = torch.argmax(logits, dim=1)
+      print(f"Unique label values in batch: {labels.unique()}")  # Debugging line
       loss = F.cross_entropy(logits, labels, reduction='mean')
       print(f"logits shape: {logits.shape}, labels shape: {labels.shape}")
       print(f"logits: {logits[:5]}")
