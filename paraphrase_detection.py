@@ -73,13 +73,13 @@ class ParaphraseGPT(nn.Module):
     'Takes a batch of sentences and produces embeddings for them.'
     ### YOUR CODE HERE
     outputs = self.gpt(input_ids=input_ids, attention_mask=attention_mask)
-    print("GPT-2 Output Keys:", outputs.keys())
+    # print("keys:", outputs.keys())
     hidden_states = outputs['last_hidden_state']
     last_token_embeds = hidden_states[:, -1, :]
     logits = self.paraphrase_detection_head(last_token_embeds)
     
     if labels is not None:
-      print(f"Raw labels before mapping: {labels}")
+       #print(f"raw labels before mapping: {labels}")
 
       label_mapping = {8505: 1, 3919: 0} 
       labels = torch.tensor([label_mapping.get(label.item(), -1) for label in labels]).to(labels.device)
@@ -89,7 +89,7 @@ class ParaphraseGPT(nn.Module):
       logits = logits[valid_indices]
 
       labels = labels.to(torch.long)
-      print(f"Mapped labels: {labels}")
+      # print(f"mapped labels: {labels}")
       return logits, labels
 
     return logits
@@ -150,11 +150,11 @@ def train(args):
       # logits = model(b_ids, b_mask)
       logits, labels = model(b_ids, b_mask, labels)  # Pass labels
       preds = torch.argmax(logits, dim=1)
-      print(f"Unique label values in batch: {labels.unique()}")
+      # print(f"unique label vals per batch: {labels.unique()}")
       loss = F.cross_entropy(logits, labels, reduction='mean')
-      print(f"logits shape: {logits.shape}, labels shape: {labels.shape}")
-      print(f"logits: {logits[:5]}")
-      print(f"labels: {labels[:5]}")
+      # print(f"logits shape: {logits.shape}, labels shape: {labels.shape}")
+      # print(f"logits: {logits[:5]}")
+      # print(f"labels: {labels[:5]}")
       loss.backward()
       optimizer.step()
 
