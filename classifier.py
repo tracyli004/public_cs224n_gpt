@@ -55,7 +55,8 @@ class GPT2SentimentClassifier(torch.nn.Module):
 
     ### TODO: Create any instance variables you need to classify the sentiment of BERT embeddings.
     ### YOUR CODE HERE
-    raise NotImplementedError
+    self.classifier = torch.nn.Linear(config.hidden_size, config.num_labels)
+    self.dropout = torch.nn.Dropout(config.hidden_dropout_prob)
 
 
   def forward(self, input_ids, attention_mask):
@@ -65,7 +66,25 @@ class GPT2SentimentClassifier(torch.nn.Module):
     ###       HINT: You should consider what is an appropriate return value given that
     ###       the training loop currently uses F.cross_entropy as the loss function.
     ### YOUR CODE HERE
-    raise NotImplementedError
+    
+    # outputs = self.gpt(input_ids=input_ids, attention_mask=attention_mask)
+    # last_hidden_states = outputs.last_hidden_state  # Shape: [batch, seq_len, hidden_dim]
+
+    # # Extract the representation of the last token (Cloze-style approach)
+    # last_token_embeds = last_hidden_states[:, -1, :]  # Shape: [batch, hidden_dim]
+    # last_token_embeds = self.dropout(last_token_embeds)
+    # logits = self.classifier(last_token_embeds)  # Shape: [batch, num_labels]
+    
+    outputs = self.gpt(input_ids, attention_mask)
+        
+    # Extract last token's hidden state
+    last_token = outputs['last_token']  # (batch_size, hidden_size)
+    
+    # Apply dropout and classify
+    last_token = self.dropout(last_token)
+    logits = self.classifier(last_token) 
+
+    return logits
 
 
 
@@ -308,7 +327,7 @@ def train(args):
 def test(args):
   with torch.no_grad():
     device = torch.device('cuda') if args.use_gpu else torch.device('cpu')
-    saved = torch.load(args.filepath)
+    saved = torch.load(args.filepath, weights_only=False)
     config = saved['model_config']
     model = GPT2SentimentClassifier(config)
     model.load_state_dict(saved['model'])
