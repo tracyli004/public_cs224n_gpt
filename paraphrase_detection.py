@@ -77,6 +77,20 @@ class ParaphraseGPT(nn.Module):
     hidden_states = outputs['last_hidden_state']
     last_token_embeds = hidden_states[:, -1, :]
     logits = self.paraphrase_detection_head(last_token_embeds)
+    
+    if labels is not None:
+      print(f"Raw labels before mapping: {labels}")
+
+      label_mapping = {8505: 1, 3919: 0} 
+      labels = torch.tensor([label_mapping.get(label.item(), -1) for label in labels]).to(labels.device)
+
+      valid_indices = labels >= 0
+      labels = labels[valid_indices]
+      logits = logits[valid_indices]
+
+      labels = labels.to(torch.long)
+      print(f"Mapped labels: {labels}")
+      return logits, labels
 
     return logits
 
