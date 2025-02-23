@@ -73,7 +73,8 @@ class ParaphraseGPT(nn.Module):
     'Takes a batch of sentences and produces embeddings for them.'
     ### YOUR CODE HERE
     outputs = self.gpt(input_ids=input_ids, attention_mask=attention_mask)
-    hidden_states = outputs.last_hidden_state
+    print("GPT-2 Output Keys:", outputs.keys())
+    hidden_states = outputs['last_hidden_state']
     last_token_embeds = hidden_states[:, -1, :]
     logits = self.classifier(last_token_embeds)
 
