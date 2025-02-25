@@ -227,6 +227,10 @@ def test(args):
 def get_args():
   parser = argparse.ArgumentParser()
 
+  parser.add_argument("--filepath", type=str, required=False, help="Path to saved model checkpoint")
+  parser.add_argument("--skip_train", action='store_true', help="Skip training and directly test the model", default=False)
+
+
   parser.add_argument("--para_train", type=str, default="data/quora-train.csv")
   parser.add_argument("--para_dev", type=str, default="data/quora-dev.csv")
   parser.add_argument("--para_test", type=str, default="data/quora-test-student.csv")
@@ -265,10 +269,22 @@ def add_arguments(args):
     raise Exception(f'{args.model_size} is not supported.')
   return args
 
+# if __name__ == "__main__":
+#   args = get_args()
+#   args.filepath = f'{args.epochs}-{args.lr}-paraphrase.pt'  # Save path.
+#   seed_everything(args.seed)  # Fix the seed for reproducibility.
+#   train(args)
+#   test(args)
 
+# test directly
 if __name__ == "__main__":
   args = get_args()
-  args.filepath = f'{args.epochs}-{args.lr}-paraphrase.pt'  # Save path.
+  if not args.filepath:
+    args.filepath = f'{args.epochs}-{args.lr}-paraphrase.pt'  # Save path.
   seed_everything(args.seed)  # Fix the seed for reproducibility.
-  train(args)
-  test(args)
+  if args.skip_train:
+    print("Skipping training. Loading and testing the model...")
+    test(args)
+  else:
+    train(args)
+    test(args)
