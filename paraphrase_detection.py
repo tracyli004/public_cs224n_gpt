@@ -153,10 +153,19 @@ def train(args):
       # print(f"unique label vals per batch: {labels.unique()}")
       loss = F.cross_entropy(logits, labels, reduction='mean')
       # print(f"logits shape: {logits.shape}, labels shape: {labels.shape}")
-      # print(f"logits: {logits[:5]}")
-      # print(f"labels: {labels[:5]}")
+      # print(f"Before logits: {logits[:5]}")
+      # print(f"Before labels: {labels[:5]}")
       loss.backward()
       optimizer.step()
+      
+      # label_mapping = {1:8505, 0:3919} 
+      # labels = torch.tensor([label_mapping.get(label.item(), -1) for label in labels]).to(labels.device)
+      # valid_indices = labels >= 0
+      # labels = labels[valid_indices]
+      # logits = logits[valid_indices]
+      
+      # print(f"After labels: {labels[:5]}")
+      # print(f"After logits: {logits[:5]}", '\n')
 
       train_loss += loss.item()
       num_batches += 1
@@ -197,11 +206,12 @@ def test(args):
 
   dev_para_acc, _, dev_para_y_pred, _, dev_para_sent_ids = model_eval_paraphrase(para_dev_dataloader, model, device)
   print(f"dev paraphrase acc :: {dev_para_acc :.3f}")
+  
   test_para_y_pred, test_para_sent_ids = model_test_paraphrase(para_test_dataloader, model, device)
 
-  label_mapping = {0: 3919, 1: 8905}
-  dev_para_y_pred_mapped = [label_mapping.get(pred, pred) for pred in dev_para_y_pred]
-  test_para_y_pred_mapped = [label_mapping.get(pred, pred) for pred in test_para_y_pred]
+  # label_mapping = {0: 3919, 1: 8505}
+  # dev_para_y_pred_mapped = [label_mapping.get(pred, pred) for pred in dev_para_y_pred]
+  # test_para_y_pred_mapped = [label_mapping.get(pred, pred) for pred in test_para_y_pred]
   
   with open(args.para_dev_out, "w+") as f:
     f.write(f"id \t Predicted_Is_Paraphrase \n")
